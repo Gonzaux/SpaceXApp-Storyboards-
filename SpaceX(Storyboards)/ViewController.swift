@@ -9,20 +9,63 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    let NManager = NetworkManagerA()
+    @IBOutlet var mainLabel: UILabel!
+    
+    var rocketModel: MainRocketDataModel? = nil
+    
+    let NService = NetworkService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NManager.makeRequest()
-         
+        
+        NService.getRockets { [weak self] (result) in
+            switch result {
+                
+            case .success(let rocketModel):
+                self?.rocketModel = rocketModel
+            case .failure(let error):
+                print("error:", error)
+            }
         }
+    }
+         
 }
 
 
 
+//MARK: - NetworkServiceProtocol protocol
+protocol RocketNetworkServiceProtocol {
+    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> ())
+    
+}
+    
 
-class NetworkManagerA {
+final class NetworkService: RocketNetworkServiceProtocol {
+    
+    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> ()) {
+        guard let url = URL(string: APIs.rockets) else { return }
+        let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        URLSession.shared.dataTask(with: url ) { data, response, error in
+            if let error = error {
+                complitions(.failure(error))
+                return
+            }
+            
+            do {
+                let obj = try decoder.decode([MainRocketDataModel].self, from: data!)
+                complitions(.success(obj))
+            } catch {
+                complitions(.failure(error))
+            }
+        }.resume()
+    }
+}
+
+
+/*class NetworkManagerA {
     func makeRequest() {
         
         guard let url = URL(string: APIs.rockets) else { return }
@@ -39,3 +82,4 @@ class NetworkManagerA {
      task.resume()
     }
 }
+*/
