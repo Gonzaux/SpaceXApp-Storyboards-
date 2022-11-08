@@ -11,27 +11,20 @@ class ViewController: UIViewController {
     
     @IBOutlet var mainLabel: UILabel!
     
-    var rocketModel: MainRocketDataModel? = nil
     
-    let NService = NetworkService()
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        lazy var rocket = [MainRocketDataModel]()
         
-        NService.getRockets { [weak self] (result) in
-            switch result {
-                
-            case .success(let rocketModel):
-                self?.rocketModel = rocketModel
-            case .failure(let error):
-                print("error:", error)
-            }
-        }
+        
+       mainLabel.text = rocket[0].name
+       
     }
-         
 }
-
 
 
 //MARK: - NetworkServiceProtocol protocol
@@ -43,43 +36,31 @@ protocol RocketNetworkServiceProtocol {
 
 final class NetworkService: RocketNetworkServiceProtocol {
     
-    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> ()) {
+    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> Void) {
         guard let url = URL(string: APIs.rockets) else { return }
-        let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
         
         URLSession.shared.dataTask(with: url ) { data, response, error in
+            
+            //checking error
             if let error = error {
                 complitions(.failure(error))
                 return
             }
+            // try to get data
             
+            
+            let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
+            guard let data = data else { return }
             do {
-                let obj = try decoder.decode([MainRocketDataModel].self, from: data!)
-                complitions(.success(obj))
+                let result = try decoder.decode([MainRocketDataModel].self, from: data)
+                complitions(.success(result))
             } catch {
                 complitions(.failure(error))
+                print(error)
             }
         }.resume()
     }
 }
-
-
-/*class NetworkManagerA {
-    func makeRequest() {
-        
-        guard let url = URL(string: APIs.rockets) else { return }
-        let request = URLRequest(url: url)
-                                 
-        let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-     
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let data = data, let rocket = try? decoder.decode([MainRocketDataModel].self, from: data) {
-                print(rocket[0].name)
-             }
-        }
-     task.resume()
-    }
-}
-*/

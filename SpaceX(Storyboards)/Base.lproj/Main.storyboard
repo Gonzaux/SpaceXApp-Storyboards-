@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -35,7 +35,7 @@
                                     <constraint firstItem="0pe-4h-ihP" firstAttribute="leading" secondItem="V2d-rM-XrF" secondAttribute="leading" constant="150" id="3Z7-rV-lEp"/>
                                     <constraint firstAttribute="bottom" secondItem="0pe-4h-ihP" secondAttribute="bottom" constant="187" id="Llf-GU-AHV"/>
                                     <constraint firstItem="0pe-4h-ihP" firstAttribute="top" secondItem="V2d-rM-XrF" secondAttribute="top" constant="187" id="cTm-0h-QfE"/>
-                                    <constraint firstAttribute="trailing" secondItem="0pe-4h-ihP" secondAttribute="trailing" constant="150" id="mgm-ur-SpF"/>
+                                    <constraint firstAttribute="trailing" relation="lessThanOrEqual" secondItem="0pe-4h-ihP" secondAttribute="trailing" constant="150" id="mgm-ur-SpF"/>
                                 </constraints>
                             </view>
                         </subviews>
