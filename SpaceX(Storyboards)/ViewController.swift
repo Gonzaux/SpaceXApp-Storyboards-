@@ -9,58 +9,118 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet var mainLabel: UILabel!
+    private let networkManager = NetworkManager()
     
+    @IBOutlet weak var contentView: UIView!
     
+    let dataSource = ["View Controller One", "View Controller Two"]
     
-    
+    var currentViewControllerIndex = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        lazy var rocket = [MainRocketDataModel]()
+        configurePageViewController()
         
         
-       mainLabel.text = rocket[0].name
-       
+        networkManager.getRockets { Result in
+            switch Result {
+                
+            case let .success(result): print(result![0].name)
+            case let .failure(error): print(error)
+                
+            }
+        }
+    }
+    
+    func configurePageViewController() {
+        
+        guard let pageViewController = storyboard?.instantiateViewController(withIdentifier: String(describing: CustomPageViewController.self)) as? CustomPageViewController else {
+            return
+        }
+        pageViewController.delegate = self
+        pageViewController.dataSource = self
+        
+        addChild(pageViewController)
+        pageViewController.didMove(toParent: self)
+        
+        pageViewController.view.translatesAutoresizingMaskIntoConstraints = true
+        
+        contentView.addSubview(pageViewController.view)
+      
+        guard let startingViewController = detailViewControllerAt(index: currentViewControllerIndex) else {
+            return
+        }
+        pageViewController.setViewControllers([startingViewController], direction: .forward, animated: true)
+    }
+    
+    
+    func detailViewControllerAt(index: Int) -> DataViewController? {
+        
+        if index >= dataSource.count || dataSource.count == 0 {
+            return nil
+        }
+        
+        guard let dataViewController = storyboard?.instantiateViewController(withIdentifier: String(describing: DataViewController.self )) as? DataViewController else {
+            return nil
+        }
+        
+        dataViewController.index = index
+        dataViewController.displayText = dataSource[index]
+        
+        return dataViewController
     }
 }
 
-
-//MARK: - NetworkServiceProtocol protocol
-protocol RocketNetworkServiceProtocol {
-    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> ())
+extension ViewController: UIPageViewControllerDelegate, UIPageViewControllerDataSource {
     
-}
     
-
-final class NetworkService: RocketNetworkServiceProtocol {
-    
-    func getRockets(complitions: @escaping (Result<[MainRocketDataModel]?, Error>) -> Void) {
-        guard let url = URL(string: APIs.rockets) else { return }
+    func presentationIndex(for pageViewController: UIPageViewController) -> Int {
+        return currentViewControllerIndex
         
-        
-        URLSession.shared.dataTask(with: url ) { data, response, error in
-            
-            //checking error
-            if let error = error {
-                complitions(.failure(error))
-                return
-            }
-            // try to get data
-            
-            
-            let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-            
-            guard let data = data else { return }
-            do {
-                let result = try decoder.decode([MainRocketDataModel].self, from: data)
-                complitions(.success(result))
-            } catch {
-                complitions(.failure(error))
-                print(error)
-            }
-        }.resume()
     }
+    
+    func presentationCount(for pageViewController: UIPageViewController) -> Int {
+        return dataSource.count
+    }
+    
+    
+    
+    
+    
+    
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        let dataViewController = viewController as? DataViewController
+        
+        guard var currentIndex = dataViewController?.index else {
+            return nil
+        }
+        currentViewControllerIndex = currentIndex
+        
+        if currentIndex == 0 {
+            return nil
+        }
+        
+        currentIndex -= 1
+        return detailViewControllerAt(index: currentIndex)
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        
+        let dataViewController = viewController as? DataViewController
+        
+        guard var currentIndex = dataViewController?.index else {
+            return nil
+        }
+        if currentIndex == dataSource.count {
+            return nil
+        }
+        currentIndex += 1
+        currentViewControllerIndex  = currentIndex
+        return detailViewControllerAt(index: currentIndex)
+    }
+     
 }
+                               
+
