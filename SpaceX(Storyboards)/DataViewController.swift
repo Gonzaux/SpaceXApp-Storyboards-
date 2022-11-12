@@ -7,18 +7,9 @@
 
 import UIKit
 
-class DataViewController: UIViewController {
-    @IBOutlet weak var displayLabel: UILabel!
-    var displayText: String?
-    
-    var index: Int?
+class LaunchViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        displayLabel.text = displayText
     }
-    
-
-
 }
